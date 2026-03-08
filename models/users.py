@@ -1,9 +1,14 @@
 from datetime import datetime
 from typing import Optional
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, DeclarativeBase
 from sqlalchemy import Integer, String, Text, Index, Enum, DateTime, ForeignKey
 
-from models.news import Base
+class Base(DeclarativeBase):
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime,
+        default=datetime.now(),
+        comment="创建时间"
+    )
 
 
 # 这里一定要继承Base基类，否则无法识别为orm对象
@@ -22,8 +27,8 @@ class User(Base):
     gender: Mapped[Optional[str]] = mapped_column(Enum("male", "female", "unknown"),default="unknown", comment="性别")
     bio: Mapped[Optional[str]] = mapped_column(Text, comment="个人简介", default="这个人很懒，什么都没有留下")
     phone: Mapped[Optional[str]] = mapped_column(String(20), unique=True, comment="手机号")
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now, comment="创建时间")
-    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now, comment="更新时间")
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now(), comment="创建时间")
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now(), comment="更新时间")
 
     def __repr__(self):
         return f"<User(id={self.id}, username={self.username}）>"
@@ -39,6 +44,7 @@ class UserToken(Base):
     user_id: Mapped[int] = mapped_column(Integer, ForeignKey(User.id), comment="用户ID")
     token: Mapped[str] = mapped_column(String(255), unique = True, nullable=False, comment="令牌值")
     expires_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, comment="过期时间")
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now, comment="创建时间")
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now(), comment="创建时间")
+
     def __repr__(self):
         return f"<UserToken(id={self.id}, user_id={self.user_id}, token={self.token}）>"
