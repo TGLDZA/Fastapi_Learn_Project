@@ -1,6 +1,4 @@
-from fastapi import APIRouter, Depends
-
-import crud.news
+from fastapi import APIRouter, Depends, Query, HTTPException
 from crud import news
 from config.db_conf import get_db
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -27,16 +25,54 @@ async def get_news_categories(skip: int = 0, limit: int = 100, db: AsyncSession 
     }
 
 @router.get("/list")
-async def get_news_list(categoryId: int, page: int = 1, pageSize: int = 10, db: AsyncSession = Depends(get_db)):
-    news_list = await crud.news.get_news_list(db, categoryId, page, pageSize)
-    total = await crud.news.get_news_count(db, categoryId)
+async def get_news_list(
+        category_id: int = Query(..., alias="categoryId"),
+        page: int = 1,
+        page_size: int = Query(10, le=100, alias="pageSize"),
+        db: AsyncSession = Depends(get_db)
+):
+
+    # 处理分页规则 -> 查询新闻列表 -> 计算总量 -> 计算是否还有更多
+    offset = (page - 1) * page_size
+    news_list = await news.get_news_list(db, category_id, offset, page_size)
+    total = await news.get_news_count(db, category_id)
+    hasmore = (offset + len(news_list)) < total
+
     return {
         "code": 200,
         "message": "success",
         "data": {
             "list": news_list,
             "total": total,
-            "page": page,
-            "pageSize": pageSize
+            "hasmore": hasmore
+        }
+    }
+
+@router.get("/detail")
+async def get_news_detail(
+        news_id: int = Query(..., alias="id"),
+        db: AsyncSession = Depends(get_db)
+):
+
+    # 获取新闻详情 + 浏览量 + 1 + 获取相关新闻
+    news_detail = await news.get_news_detail(db, news_id)
+    if not news_detail:
+        raise HTTPException(status_code=404, detail="获取内容不存在")
+    # news_detail.views += 1
+    related_news = await news.get_related_news(db, news_detail.category_id, news_id, limit=3)
+
+    return {
+        "code": 200,
+        "message": "success",
+        "data": {
+            "id": news_detail.id,
+            "title": news_detail.title,
+            "content": news_detail.content,
+            "image": news_detail.image,
+            "author": news_detail.author,
+            "publishTime": news_detail.publish_time,
+            "categoryId": news_detail.category_id,
+            "views": news_detail.views,
+            "relatedNews": related_news
         }
     }

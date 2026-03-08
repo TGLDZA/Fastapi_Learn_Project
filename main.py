@@ -1,5 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
+from config.db_conf import async_engine
 from routers import news
 
 app = FastAPI()
@@ -12,6 +14,11 @@ app.add_middleware(
     allow_methods=["*"],  # 允许的方法
     allow_headers=["*"]  # 允许的请求头
 )
+
+@app.on_event("shutdown")
+async def shutdown_db():
+    """应用关闭时清理数据库连接"""
+    await async_engine.dispose()  # ✅ 释放所有连接
 
 
 @app.get("/")

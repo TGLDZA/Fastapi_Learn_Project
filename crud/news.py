@@ -1,31 +1,44 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
-from models.news import Category, List
+from models.news import Category, News
 
 async def get_news_categories(db: AsyncSession, skip: int = 0, limit: int = 100):
     stmt = select(Category).offset(skip).limit(limit)
     result = await db.execute(stmt)
     return result.scalars().all()
 
-async def get_news_list(db: AsyncSession, category_id: int, page: int = 1, page_size: int = 10):
-    offset = (page - 1) & page_size
+async def get_news_list(db: AsyncSession, category_id: int, skip: int = 0, limit: int = 10):
     query = (
-        select(List)
-        .where(List.category_id == category_id)
-        .order_by(List.publish_time)
-        .offset(offset)
-        .limit(page_size)
+        select(News)
+        .where(News.category_id == category_id)
+        .offset(skip)
+        .limit(limit)
     )
     result = await db.execute(query)
     return result.scalars().all()
 
 async def get_news_count(db: AsyncSession, category_id: int) -> int:
+    # 查询的是指定分类下的数量
     query = (
-        select(func.count())
-        .select_from(List)
-        .where(List.category_id == category_id)
+        select(func.count(News.id)).
+        where(News.category_id == category_id)
     )
     result = await db.execute(query)
-    count = result.scalar()
-    return count or 0
+    return result.scalar_one()  # 只能有一个结果，否则报错
+
+async def get_news_detail(db: AsyncSession, news_id: int):
+    # 查询指定id的新闻详情
+    return await db.get(News, news_id)
+
+async def get_related_news(db: AsyncSession, category_id: int, news_id: int, limit: int = 3):
+    # 查询指定id的相关新闻
+    query = (
+        select(News)
+        .where(News.category_id == category_id)
+        .where(News.id != news_id)
+        .order_by(func.random())
+        .limit(limit)
+    )
+    results = await db.execute(query)
+    return results.scalars().all()
 
