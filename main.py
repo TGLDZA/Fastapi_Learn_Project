@@ -3,9 +3,11 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from config.db_conf import async_engine
 from routers import news, users
+from utils.exception_handlers import register_error_handlers
 
 app = FastAPI()
 
+register_error_handlers(app)
 
 app.add_middleware(
     CORSMiddleware,
