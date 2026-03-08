@@ -4,7 +4,7 @@ from starlette.exceptions import HTTPException
 from utils.exception import http_exception_handler, integrity_error_handler, sqlalchemy_error_handler, \
     general_error_handler
 
-# 全局异常处理器
+# 全局异常处理器，所有异常都由这个处理，其他路由函数无须再处理
 def register_error_handlers(app):
     """
     注册全局处理异常：子类在前，父类在后；具体在前，抽象在后

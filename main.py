@@ -7,6 +7,7 @@ from utils.exception_handlers import register_error_handlers
 
 app = FastAPI()
 
+# 注册异常处理器
 register_error_handlers(app)
 
 app.add_middleware(
