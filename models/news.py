@@ -34,9 +34,10 @@ class News(Base):
     # 创建索引，提升查询速度 -> 创建目录
     __table_args__ = (
         Index('fk_news_category_idx', 'category_id'),  # 高频查询场景
-        Index('idx_publish_time', 'publish_time')  # 按发布时间排序
+        Index('idx_publish_time', 'publish_time')  # 按发布时间排序，所以发布时间也是高频查询
     )
 
+    # Optional表示可以为None
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True, comment="新闻ID")
     title: Mapped[str] = mapped_column(String(255), nullable=False, comment="新闻标题")
     description: Mapped[Optional[str]] = mapped_column(String(500), comment="新闻简介")
