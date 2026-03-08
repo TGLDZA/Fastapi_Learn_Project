@@ -58,7 +58,7 @@ async def get_news_detail(
     news_detail = await news.get_news_detail(db, news_id)
     if not news_detail:
         raise HTTPException(status_code=404, detail="获取内容不存在")
-    # news_detail.views += 1
+    await news.increase_news_views(db, news_detail.id)
     related_news = await news.get_related_news(db, news_detail.category_id, news_id, limit=3)
 
     return {
