@@ -30,14 +30,16 @@ async def get_news_detail(db: AsyncSession, news_id: int):
     # 查询指定id的新闻详情
     return await db.get(News, news_id)
 
-async def get_related_news(db: AsyncSession, category_id: int, news_id: int, limit: int = 3):
+async def get_related_news(db: AsyncSession, category_id: int, news_id: int, limit: int = 5):
     # 查询指定id的相关新闻
     stmt = (
         select(News)
         .where(News.category_id == category_id)
         .where(News.id != news_id)
-        .order_by(func.random())
-        .limit(limit)
+        .order_by(  # 浏览量最高，发布时间最新的前五名推荐
+            News.views.desc(),
+            News.publish_time.desc()
+        ).limit(limit)
     )
     results = await db.execute(stmt)
     return results.scalars().all()

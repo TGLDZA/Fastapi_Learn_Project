@@ -58,10 +58,10 @@ async def get_news_detail(
     news_detail = await news.get_news_detail(db, news_id)
     if not news_detail:
         raise HTTPException(status_code=404, detail="获取内容不存在")
-    views_res = await news.increase_news_views(db, news_detail.id)
-    if not views_res:
-        raise HTTPException(status_code=404, detail="获取内容不存在")
-    related_news = await news.get_related_news(db, news_detail.category_id, news_id, limit=3)
+
+    await news.increase_news_views(db, news_detail.id)
+
+    related_news = await news.get_related_news(db, news_detail.category_id, news_id)
 
     return {
         "code": 200,
@@ -75,6 +75,18 @@ async def get_news_detail(
             "publishTime": news_detail.publish_time,
             "categoryId": news_detail.category_id,
             "views": news_detail.views,
-            "relatedNews": related_news
+            "relatedNews": [
+                {
+                    "id": n.id,
+                    "title": n.title,
+                    "content": n.content,
+                    "image": n.image,
+                    "author": n.author,
+                    "publishTime": n.publish_time,
+                    "categoryId": n.category_id,
+                    "views": n.views,
+                }
+                for n in related_news  # 列表推导式
+            ]
         }
     }
