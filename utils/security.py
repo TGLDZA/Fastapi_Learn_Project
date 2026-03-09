@@ -6,4 +6,6 @@ pwd_context = CryptContext(schemes="bcrypt", deprecated="auto")
 def get_hash_password(password: str):
     return pwd_context.hash(password)
 
-# 密码解密
+# 验证密码：verify返回值是布尔型
+def verify_password(plain_password, hashed_password):
+    return pwd_context.verify(plain_password, hashed_password)
