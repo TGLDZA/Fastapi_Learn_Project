@@ -14,6 +14,7 @@ async def get_user_by_username(db: AsyncSession, username: str):
     result = await db.execute(stmt)
     return result.scalar_one_or_none()
 
+
 async def create_user(db: AsyncSession, user_data: UserRequest):
     # 先对明文密码进行加密
     hashed_password = security.get_hash_password(user_data.password)
@@ -22,6 +23,7 @@ async def create_user(db: AsyncSession, user_data: UserRequest):
     await db.commit()
     await db.refresh(user)  # 从数据库中读回最新的user
     return user
+
 
 # 生成Token
 async def create_token(db: AsyncSession, user_id: int):
@@ -44,6 +46,7 @@ async def create_token(db: AsyncSession, user_id: int):
 
     return token
 
+
 async def authenticate_user(db: AsyncSession, username: str, password: str):
     user = await get_user_by_username(db, username)
     # 该用户不存在
@@ -52,4 +55,5 @@ async def authenticate_user(db: AsyncSession, username: str, password: str):
     # 密码不对
     if not verify_password(password, user.password):
         return None
+
     return user

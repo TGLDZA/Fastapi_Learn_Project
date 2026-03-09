@@ -42,8 +42,14 @@ async def user_register(user_data: UserRequest, db: AsyncSession = Depends(get_d
 async def login(user_data: UserRequest, db: AsyncSession = Depends(get_db)):
     # 用户登录逻辑：验证用户是否存在 -> 验证密码是否正确 -> 生成Token -> 响应结果
     user = await users.authenticate_user(db, user_data.username, user_data.password)
+    # 具体的业务错误还是要写抛出异常，不然就会进入token创建出错，就变成了数据库完整性约束错误
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="用户名或者密码错误")
     token = await users.create_token(db, user.id)
     response_data = UserAuthResponse(token=token, user_info=UserInfoResponse.model_validate(user))
     return success_response(message="登录成功", data=response_data)
+
+# 查Token 查用户 -> 封装crud -> 功能整合成一个工具函数 -> 路由函数调用
+@router.get("/info")
+async def get_user_info():
+    return success_response(message="获取用户信息成功")
