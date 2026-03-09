@@ -11,7 +11,7 @@ async def get_current_user(
     authorization: str = Header(..., alias="Authorization"),
     db: AsyncSession = Depends(get_db)
 ):
-    # 由于前端传的请求头字段中 token 格式为 Bearer <token>，所以需要去掉前面的"Bearer "字段才能获得token
+    # 由于http请求传的请求头字段中 token 格式为 Bearer <token>，所以需要去掉前面的"Bearer "字段才能获得token
     token = authorization.replace("Bearer ", "")
     user = await get_user_by_token(db, token)
 
