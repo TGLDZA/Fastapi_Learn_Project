@@ -1,7 +1,7 @@
 from typing import Optional
 from pydantic import BaseModel, Field, ConfigDict
 
-
+# pydantic自动校验
 class UserRequest(BaseModel):
     username: str
     password: str

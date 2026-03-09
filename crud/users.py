@@ -5,6 +5,8 @@ from sqlalchemy import select
 from models.users import User, UserToken
 from schemas.users import UserRequest
 from utils import security
+from utils.security import verify_password
+
 
 async def get_user_by_username(db: AsyncSession, username: str):
     # 根据用户名查询数据库
@@ -41,3 +43,13 @@ async def create_token(db: AsyncSession, user_id: int):
         await db.commit()
 
     return token
+
+async def authenticate_user(db: AsyncSession, username: str, password: str):
+    user = await get_user_by_username(db, username)
+    # 该用户不存在
+    if not user:
+        return None
+    # 密码不对
+    if not verify_password(password, user.password):
+        return None
+    return user
