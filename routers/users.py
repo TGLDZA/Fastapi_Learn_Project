@@ -40,6 +40,7 @@ async def user_register(user_data: UserRequest, db: AsyncSession = Depends(get_d
 
 @router.post("/login")
 async def login(user_data: UserRequest, db: AsyncSession = Depends(get_db)):
+    # 用户登录逻辑：验证用户是否存在 -> 验证密码是否正确 -> 生成Token -> 响应结果
     user = await users.authenticate_user(db, user_data.username, user_data.password)
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="用户名或者密码错误")
