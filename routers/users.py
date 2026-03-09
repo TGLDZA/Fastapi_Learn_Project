@@ -37,3 +37,7 @@ async def user_register(user_data: UserRequest, db: AsyncSession = Depends(get_d
     # }
     response_data = UserAuthResponse(token=token, user_info=UserInfoResponse.model_validate(user))
     return success_response(message="注册成功", data=response_data)
+
+@router.post("/login")
+async def login(user: UserRequest, db: AsyncSession = Depends(get_db)):
+    return success_response(message="登录成功")
