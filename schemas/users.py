@@ -33,3 +33,12 @@ class UserAuthResponse(BaseModel):
         populate_by_name=True,  # alias / 字段名兼容
         from_attributes=True  # 允许从 ORM 对象属性中取值
     )
+
+
+# 定义更新用户的模型类
+class UserUpdateRequest(BaseModel):
+    nickname: str
+    avater: str
+    gender: str
+    bio: str
+    phone: str
