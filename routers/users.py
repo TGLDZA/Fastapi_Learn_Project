@@ -5,7 +5,7 @@ from config.db_conf import get_db
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from models.users import User
-from schemas.users import UserRequest, UserAuthResponse, UserInfoResponse
+from schemas.users import UserRequest, UserAuthResponse, UserInfoResponse, UserUpdateRequest
 from crud import users
 from utils.auth import get_current_user
 from utils.response import success_response
@@ -61,7 +61,7 @@ async def get_user_info(user: User = Depends(get_current_user)):
 # 修改用户信息 -> 验证Token -> 更新用户信息（用户输入数据 put提交 -> 请求体参数 -> 定义模型类，pydantic校验） -> 响应结果
 # 参数： 用户输入 + 验证Token的 + db（调用更新的方法）
 @router.put("/update")
-async def update_user_info(user_data: UserRequest,
+async def update_user_info(user_data: UserUpdateRequest,
                            user: User = Depends(get_current_user),
                            db: AsyncSession = Depends(get_db)
 ):
