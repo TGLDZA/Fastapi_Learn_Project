@@ -3,7 +3,7 @@ from starlette import status
 from config.db_conf import get_db
 from sqlalchemy.ext.asyncio import AsyncSession
 from models.users import User
-from schemas.users import UserRequest, UserAuthResponse, UserInfoResponse, UserUpdateRequest
+from schemas.users import UserRequest, UserAuthResponse, UserInfoResponse, UserUpdateRequest, PasswordUpdateRequest
 from crud import users
 from utils.auth import get_current_user
 from utils.response import success_response
@@ -67,3 +67,13 @@ async def update_user_info(user_data: UserUpdateRequest,
                            ):
     user = await users.update_user(db, user.username, user_data)
     return success_response(message="更改信息成功", data=UserInfoResponse.model_validate(user))
+
+
+# 修改密码：验证密码是否正确 -> 更新密码
+@router.put("/password")
+async def update_password(
+        password: PasswordUpdateRequest,
+        user: User = Depends(get_current_user),
+        db: AsyncSession = Depends(get_db)
+):
+    return success_response(message="更新密码成功")
