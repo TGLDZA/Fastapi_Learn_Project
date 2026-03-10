@@ -1,9 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from starlette import status
-
 from config.db_conf import get_db
 from sqlalchemy.ext.asyncio import AsyncSession
-
 from models.users import User
 from schemas.users import UserRequest, UserAuthResponse, UserInfoResponse, UserUpdateRequest
 from crud import users
@@ -38,6 +36,8 @@ async def user_register(user_data: UserRequest, db: AsyncSession = Depends(get_d
     #         }
     #     }
     # }
+
+    # model_validate()方法用于从orm对象中提取值
     response_data = UserAuthResponse(token=token, user_info=UserInfoResponse.model_validate(user))
     return success_response(message="注册成功", data=response_data)
 
@@ -65,4 +65,5 @@ async def update_user_info(user_data: UserUpdateRequest,
                            user: User = Depends(get_current_user),
                            db: AsyncSession = Depends(get_db)
                            ):
-    return success_response(message="更改信息成功")
+    user = await users.update_user(db, user.username, user_data)
+    return success_response(message="更改信息成功", data=UserInfoResponse.model_validate(user))
