@@ -56,3 +56,13 @@ async def login(user_data: UserRequest, db: AsyncSession = Depends(get_db)):
 @router.get("/info")
 async def get_user_info(user: User = Depends(get_current_user)):
     return success_response(message="获取用户信息成功", data=UserInfoResponse.model_validate(user))
+
+
+# 修改用户信息 -> 验证Token -> 更新用户信息（用户输入数据 put提交 -> 请求体参数 -> 定义模型类，pydantic校验） -> 响应结果
+# 参数： 用户输入 + 验证Token的 + db（调用更新的方法）
+@router.put("/update")
+async def update_user_info(user_data: UserRequest,
+                           user: User = Depends(get_current_user),
+                           db: AsyncSession = Depends(get_db)
+):
+    return success_response(message="更改信息成功")
