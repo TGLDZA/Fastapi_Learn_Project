@@ -46,5 +46,5 @@ class UserUpdateRequest(BaseModel):
 
 # 定义用户提交修改密码的请求体参数模型类
 class PasswordUpdateRequest(BaseModel):
-    old_password: str = Field(..., alias="OldPassword", description="旧密码")
-    new_password: str = Field(..., alias="NewPassword", min_length=6, description="新密码")
+    old_password: str = Field(..., alias="oldPassword", description="旧密码")
+    new_password: str = Field(..., alias="newPassword", min_length=6, description="新密码")

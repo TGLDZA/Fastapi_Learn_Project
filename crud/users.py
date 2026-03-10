@@ -97,7 +97,7 @@ async def update_user(db: AsyncSession, username: str, user_data: UserUpdateRequ
 
 async def change_password(db: AsyncSession, user: User, old_password: str, new_password: str):
     # 验证密码
-    if not security.verify_password(old_password, new_password):
+    if not security.verify_password(old_password, user.password):
         return False
 
     # 新密码加密
