@@ -2,6 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException
 from starlette import status
 from config.db_conf import get_db
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from crud.users import change_password
 from models.users import User
 from schemas.users import UserRequest, UserAuthResponse, UserInfoResponse, UserUpdateRequest, PasswordUpdateRequest
 from crud import users
@@ -72,8 +74,14 @@ async def update_user_info(user_data: UserUpdateRequest,
 # 修改密码：验证密码是否正确 -> 更新密码
 @router.put("/password")
 async def update_password(
-        password: PasswordUpdateRequest,
+        password_data: PasswordUpdateRequest,
         user: User = Depends(get_current_user),
         db: AsyncSession = Depends(get_db)
 ):
-    return success_response(message="更新密码成功")
+
+    changed_new_pwd = await change_password(db, user, password_data.old_password, password_data.new_password)
+
+    if not changed_new_pwd:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="修改密码失败，请稍后重试")
+
+    return success_response(message="修改密码成功")
