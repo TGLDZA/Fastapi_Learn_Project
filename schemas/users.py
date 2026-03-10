@@ -38,7 +38,7 @@ class UserAuthResponse(BaseModel):
 # 定义更新用户的模型类
 class UserUpdateRequest(BaseModel):
     nickname: str
-    avater: str
+    avatar: str
     gender: str
     bio: str
     phone: str
