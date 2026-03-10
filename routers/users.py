@@ -64,5 +64,5 @@ async def get_user_info(user: User = Depends(get_current_user)):
 async def update_user_info(user_data: UserUpdateRequest,
                            user: User = Depends(get_current_user),
                            db: AsyncSession = Depends(get_db)
-):
+                           ):
     return success_response(message="更改信息成功")

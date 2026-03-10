@@ -1,9 +1,11 @@
 import uuid
 from datetime import datetime, timedelta
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, update
+from starlette.exceptions import HTTPException
+
 from models.users import User, UserToken
-from schemas.users import UserRequest
+from schemas.users import UserRequest, UserUpdateRequest
 from utils import security
 from utils.security import verify_password
 
@@ -71,3 +73,23 @@ async def get_user_by_token(db: AsyncSession, token: str):
     stmt = select(User).where(User.id == db_token.user_id)
     result = await db.execute(stmt)
     return result.scalar_one_or_none()
+
+
+# 更新用户信息: update更新 -> 检查是否命中 -> 返回更新后的用户信息
+async def update_user(db: AsyncSession, username: str, user_data: UserUpdateRequest):
+    # valuse()里面要满足字段=值，这里是多个字段
+    # 可以使用pydantic的model_dump()方法，会将pydantic对象拆解成字典
+    # 再用**解包得到的字典就满足values的要求
+    stmt = update(User).where(User.username == username).values(**user_data.model_dump(
+        exclude_unset=True,  # 未设置的值不提取
+        exclude_none=True  # 值为none的不提取
+    ))
+    result = await db.execute(stmt)
+    await db.commit()
+
+    # 检查更新，如果无更新，说明数据库中不存在该用户
+    if result.rowcount == 0:
+        raise HTTPException(status_code=404, detail="该用户不存在")
+
+    updated_user = await get_user_by_username(db, username)
+    return updated_user
