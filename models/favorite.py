@@ -22,7 +22,7 @@ class Favorite(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True, comment="收藏ID")
     user_id: Mapped[int] = mapped_column(Integer, ForeignKey(User.id), nullable=False, comment="用户ID")
     news_id: Mapped[int] = mapped_column(Integer, ForeignKey(News.id), nullable=False, comment="新闻ID")
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now, nullable=False, comment="收藏新闻时间")
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now, nullable=False, comment="收藏时间")
 
     # 打印对象， 便于观察
     def __repr__(self):
