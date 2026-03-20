@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from config.db_conf import get_db
 from crud.favorite import is_news_favorite
 from models.users import User
-from schemas.favorite import FavoriteCheckResponse
+from schemas.favorite import FavoriteCheckResponse, FavoriteAddRequest
 from utils.auth import get_current_user
 from utils.response import success_response
 
@@ -18,3 +18,11 @@ async def check_favorite(
 
     is_favorited= await is_news_favorite(db, user.id, news_id)
     return success_response(message="检查收藏状态成功", data=FavoriteCheckResponse(isFavorite=is_favorited))
+
+@router.post("/add")
+async def add_favorite(
+        data: FavoriteAddRequest,
+        user: User = Depends(get_current_user),
+        db: AsyncSession = Depends(get_db)
+):
+    return success_response(message="添加成功")
