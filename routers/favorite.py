@@ -25,4 +25,4 @@ async def add_favorite(
         user: User = Depends(get_current_user),
         db: AsyncSession = Depends(get_db)
 ):
-    return success_response(message="添加成功")
+    return success_response(message="添加收藏成功")
