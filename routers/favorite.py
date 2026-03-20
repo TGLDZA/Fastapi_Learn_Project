@@ -28,3 +28,11 @@ async def add_favorite(
     # 由于检查收藏状态的时候规定了唯一约束，所以此处无需再检查收藏与否
     result = await favorite.add_news_favorite(db, user.id, data.news_id)
     return success_response(message="添加收藏成功", data=result)
+
+@router.delete("/remove")
+async def remove_favorite(
+        news_id: int = Query(..., alias="newsId"),
+        user: User = Depends(get_current_user),
+        db: AsyncSession = Depends(get_db)
+):
+    return success_response(message="取消收藏成功")
