@@ -9,7 +9,7 @@ class NewsItemBase(BaseModel):
     description: Optional[str] = None
     image: Optional[str] = None
     author: Optional[str] = None
-    category_id: int = Field(..., alias="categoryId")
+    category_id: int = Field(alias="categoryId")
     views: int
     publish_time: Optional[datetime] = Field(None, alias="publishedTime")
 

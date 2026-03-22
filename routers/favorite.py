@@ -6,7 +6,7 @@ from starlette.exceptions import HTTPException
 from config.db_conf import get_db
 from crud import favorite
 from models.users import User
-from schemas.favorite import FavoriteCheckResponse, FavoriteAddRequest
+from schemas.favorite import FavoriteCheckResponse, FavoriteAddRequest, FavoriteNewsItemResponse
 from utils.auth import get_current_user
 from utils.response import success_response
 
@@ -59,5 +59,7 @@ async def get_favorite_list(
         "favorite_time": favorite_time,
         "favorite_id": favorite_id
     } for news, favorite_time, favorite_id in rows]
-    hasmore = total > page * page_size
-    return success_response(message="获取收藏列表成功")
+    has_more = total > page * page_size
+
+    data = FavoriteNewsItemResponse(list=favorite_list, total=total, hasMore=has_more)
+    return success_response(message="获取收藏列表成功", data=data)
