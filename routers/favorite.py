@@ -44,3 +44,12 @@ async def remove_favorite(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="收藏记录不存在")
 
     return success_response(message="取消收藏成功")
+
+@router.get("/list")
+async def get_favorite_list(
+        page: int = Query(1, ge=1),
+        page_size: int = Query(10, ge=1, le=100, alias="pageSize"),
+        user: User = Depends(get_current_user),
+        db: AsyncSession = Depends(get_db)
+):
+    return success_response(message="获取收藏列表成功")
