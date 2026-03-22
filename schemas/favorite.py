@@ -8,6 +8,8 @@ class FavoriteCheckResponse(BaseModel):
 class FavoriteAddRequest(BaseModel):
     news_id: int = Field(..., alias="newsId")
 
+# 新增两个类： 新闻列表类 + 收藏类
+
 # 收藏列表接口的响应模型类
 class FavoriteListResponse(BaseModel):
     list: list[xx]
