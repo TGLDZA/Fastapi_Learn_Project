@@ -52,7 +52,7 @@ async def get_favorite_list(
         user: User = Depends(get_current_user),
         db: AsyncSession = Depends(get_db)
 ):
-    total, rows = favorite.get_favorite_list(db, user.id, page, page_size)
+    total, rows = await favorite.get_favorite_list(db, user.id, page, page_size)
     # 现在获得的rows还是一个元组列表，需要解包成字典列表返回data
     favorite_list = [{
         **news.__dict__,
