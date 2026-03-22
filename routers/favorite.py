@@ -52,4 +52,12 @@ async def get_favorite_list(
         user: User = Depends(get_current_user),
         db: AsyncSession = Depends(get_db)
 ):
+    total, rows = favorite.get_favorite_list(db, user.id, page, page_size)
+    # 现在获得的rows还是一个元组列表，需要解包成字典列表返回data
+    favorite_list = [{
+        **news.__dict__,
+        "favorite_time": favorite_time,
+        "favorite_id": favorite_id
+    } for news, favorite_time, favorite_id in rows]
+    hasmore = total > page * page_size
     return success_response(message="获取收藏列表成功")
