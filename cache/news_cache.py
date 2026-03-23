@@ -7,6 +7,8 @@ from config.cache_conf import get_json_cache, set_cache
 CATEGORIES_KEY = "news:categories"
 NEWS_LIST_KEY_PREFIX = "news_list:"
 NEWS_DETAIL_KEY_PREFIX = "news:detail:"
+RELATED_NEWS_KEY_PREFIX = "news:related:"
+
 
 # 新闻分类的读取和写入
 
@@ -48,3 +50,17 @@ async def set_cached_news_detail(news_id: int, news_detail: Dict[str, Any], expi
 async def get_cached_news_detail(news_id: int):
     key = f"{NEWS_DETAIL_KEY_PREFIX}{news_id}"
     return await get_json_cache(key)
+
+
+# 相关新闻缓存的写入和读取
+
+# 写入缓存：相关新闻key：news:related:分类id:新闻id  value: 相关新闻列表  expire: 600
+async def set_cached_related_news(category_id: int, news_id: int, related_news: List[Dict[str, Any]], expire: int = 600):
+    key = f"{RELATED_NEWS_KEY_PREFIX}{category_id}:{news_id}"
+    return await set_cache(key, related_news, expire)
+
+# 读取缓存--相关新闻
+async def get_cached_related_news(category_id: int, news_id: int):
+    key = f"{RELATED_NEWS_KEY_PREFIX}{category_id}:{news_id}"
+    return await get_json_cache(key)
+
