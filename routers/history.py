@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from config.db_conf import get_db
@@ -19,3 +19,12 @@ async def add_history(
     result = await history.add_news_history(db, user.id, data.news_id)
 
     return success_response(message="添加成功", data=result)
+
+@router.get("/list")
+async def get_history_list(
+        page: int = Query(1, ge=1),
+        page_size: int = Query(10, ge=1, le=100),
+        user: User = Depends(get_current_user),
+        db: AsyncSession = Depends(get_db)
+):
+    return success_response(message="获取浏览历史列表成功")
