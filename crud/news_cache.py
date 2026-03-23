@@ -49,8 +49,8 @@ async def get_news_list(db: AsyncSession, category_id: int, skip: int = 0, limit
     # 写入缓存
     if news_list:
         # 先把ORM数据转换成字典才能写入缓存
-        # 这里也可以用jsonable.encoder()
-        # 此处使用另一种方法： ORM转pydantic再转字典
+        # 这里不能用jsonable.encoder()，因为缓存数据可能不需要使用到这个模型的全部字段（属性）
+        # 此处使用另一种方法： ORM转pydantic再转字典，用model_dump方法更灵活，可以控制输出哪些字段
         # by_alias=False 不使用别名，保持Python风格，因为Redis数据是给后端用的
         news_data = [NewsItemBase.model_validate(item).model_dump(mode="json", by_alias=False) for item in news_list]
         await set_cached_news_list(category_id, page, limit, news_data)
