@@ -57,4 +57,4 @@ async def get_history_list(
     result = await db.execute(stmt)
     rows = result.all()
 
-    return rows, total
+    return total, rows
