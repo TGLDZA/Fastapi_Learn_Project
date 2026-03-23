@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, update
 
 from cache.news_cache import get_cached_categories, set_cached_categories, get_cached_news_list, set_cached_news_list, \
-    get_cached_news_detail, set_cached_news_detail
+    get_cached_news_detail, set_cached_news_detail, get_cached_related_news, set_cached_related_news
 from models.news import Category, News
 from schemas.base import NewsItemBase
 
@@ -86,6 +86,11 @@ async def get_news_detail(db: AsyncSession, news_id: int):
     return news_detail
 
 async def get_related_news(db: AsyncSession, category_id: int, news_id: int, limit: int = 5):
+    # 先查找缓存
+    cached_related_news = await get_cached_related_news(category_id, news_id)
+    if cached_related_news:
+        return [News(**item) for item in cached_related_news]
+
     # 查询指定id的相关新闻
     stmt = (
         select(News)
@@ -97,7 +102,15 @@ async def get_related_news(db: AsyncSession, category_id: int, news_id: int, lim
         ).limit(limit)
     )
     results = await db.execute(stmt)
-    return results.scalars().all()
+    related_news =  results.scalars().all()
+
+    # 写入缓存
+    if related_news:
+        related_news_data = [NewsItemBase.model_validate(item).model_dump(mode="json", by_alias=False) for item in related_news]
+        await set_cached_related_news(category_id, news_id, related_news_data)
+
+    # 响应数据
+    return related_news
 
 async def increase_news_views(db: AsyncSession, news_id: int):
     # 增加浏览量
