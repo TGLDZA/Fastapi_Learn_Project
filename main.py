@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from config.db_conf import async_engine
-from routers import news, users, favorite
+from routers import news, users, favorite, history
 from utils.exception_handlers import register_error_handlers
 
 app = FastAPI()
@@ -31,3 +31,4 @@ async def root():
 app.include_router(news.router)
 app.include_router(users.router)
 app.include_router(favorite.router)
+app.include_router(history.router)
