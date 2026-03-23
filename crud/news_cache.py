@@ -2,7 +2,8 @@ from fastapi.encoders import jsonable_encoder
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, update
 
-from cache.news_cache import get_cached_categories, set_cached_categories, get_cached_news_list, set_cached_news_list
+from cache.news_cache import get_cached_categories, set_cached_categories, get_cached_news_list, set_cached_news_list, \
+    get_cached_news_detail, set_cached_news_detail
 from models.news import Category, News
 from schemas.base import NewsItemBase
 
@@ -68,8 +69,21 @@ async def get_news_count(db: AsyncSession, category_id: int) -> int:
     return result.scalar_one()  # 只能有一个结果，否则报错
 
 async def get_news_detail(db: AsyncSession, news_id: int):
+    # 先尝试从缓存中获取新闻详情
+    cached_news_detail = await get_cached_news_detail(news_id)
+    if cached_news_detail:
+        return News(**cached_news_detail)
+
     # 查询指定id的新闻详情
-    return await db.get(News, news_id)
+    news_detail =  await db.get(News, news_id)
+
+    # 写入缓存
+    if news_detail:
+        news_dict = jsonable_encoder(news_detail)
+        await set_cached_news_detail(news_id, news_dict)
+
+    # 返回数据
+    return news_detail
 
 async def get_related_news(db: AsyncSession, category_id: int, news_id: int, limit: int = 5):
     # 查询指定id的相关新闻
