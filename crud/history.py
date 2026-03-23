@@ -1,9 +1,10 @@
 from datetime import datetime
 
-from sqlalchemy import select, update
+from sqlalchemy import select, update, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from models.history import History
+from models.news import News
 
 
 async def add_news_history(
@@ -33,3 +34,27 @@ async def add_news_history(
     await db.refresh(history)
 
     return history
+
+async def get_history_list(
+        db: AsyncSession,
+        user_id: int,
+        page: int = 1,
+        page_size: int = 10
+):
+    # 浏览历史总量
+    stmt = select(func.count()).where(History.user_id == user_id)
+    result = await db.execute(stmt)
+    total = result.scalar_one()
+
+    # 浏览历史列表
+    offset = (page - 1) * page_size
+    stmt = (select(News, History.id.label("history_id")).join(History, History.news_id == News.id)
+     .where(History.user_id == user_id)
+     .order_by(History.view_time.desc())
+     .offset(offset)
+     .limit(page_size))
+
+    result = await db.execute(stmt)
+    rows = result.all()
+
+    return rows, total
