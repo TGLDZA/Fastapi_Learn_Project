@@ -59,4 +59,6 @@ async def clear_history(
         user: User = Depends(get_current_user),
         db: AsyncSession = Depends(get_db)
 ):
-    return success_response(message=f"清空条浏览记录成功")
+    count = history.delete_all_history(db, user.id)
+
+    return success_response(message=f"清空{count}条浏览记录成功")
