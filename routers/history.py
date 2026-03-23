@@ -38,3 +38,11 @@ async def get_history_list(
 
     data = HistoryListResponse(list=history_list, total=total, hasMore=has_more)
     return success_response(message="获取浏览历史列表成功", data=data)
+
+@router.delete("/delete/{history_id}")
+async def delete_history(
+        history_id: int,
+        user: User = Depends(get_current_user),
+        db: AsyncSession = Depends(get_db)
+):
+    return success_response(message="删除浏览记录成功")
