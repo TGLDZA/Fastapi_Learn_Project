@@ -79,4 +79,4 @@ async def remove_all_favorite(
     await db.commit()
 
     # 返回删除的记录数
-    return result.rowcount() or 0
+    return result.rowcount or 0
