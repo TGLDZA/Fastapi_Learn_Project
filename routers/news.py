@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, Query, HTTPException
 from crud import news
+from crud import news_cache
 from config.db_conf import get_db
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -17,7 +18,7 @@ router = APIRouter(prefix="/api/news", tags=["news"])
 @router.get("/categories")
 async def get_news_categories(skip: int = 0, limit: int = 100, db: AsyncSession = Depends(get_db)):
     # 先获取数据库新闻分类 -> 先定义模型类 -> 封装查询数据的方法
-    categories = await news.get_news_categories(db, skip, limit)
+    categories = await news_cache.get_news_categories(db, skip, limit)
     return {
         "code": 200,
         "message": "success",
