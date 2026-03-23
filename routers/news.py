@@ -35,7 +35,7 @@ async def get_news_list(
 
     # 处理分页规则 -> 查询新闻列表 -> 计算总量 -> 计算是否还有更多
     offset = (page - 1) * page_size
-    news_list = await news.get_news_list(db, category_id, offset, page_size)
+    news_list = await news_cache.get_news_list(db, category_id, offset, page_size)
     total = await news.get_news_count(db, category_id)
     hasmore = (offset + len(news_list)) < total
 
