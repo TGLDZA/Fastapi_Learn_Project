@@ -2,8 +2,10 @@ from fastapi.encoders import jsonable_encoder
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, update
 
-from cache.news_cache import get_cached_categories, set_cached_categories
+from cache.news_cache import get_cached_categories, set_cached_categories, get_cached_news_list, set_cached_news_list
 from models.news import Category, News
+from schemas.base import NewsItemBase
+
 
 # 旁路策略：先从缓存中读数据，若没有则从数据库中查询读取，写入缓存后再返回数据
 
@@ -27,6 +29,14 @@ async def get_news_categories(db: AsyncSession, skip: int = 0, limit: int = 100)
     return categories
 
 async def get_news_list(db: AsyncSession, category_id: int, skip: int = 0, limit: int = 10):
+
+    # 先尝试从缓存中获取新闻列表
+    page = (skip // limit) + 1
+    cached_news_list = await get_cached_news_list(category_id, page, limit)  # 得到的是缓存数据json
+    if cached_news_list:
+        # 这里需要返回ORM对象
+        return [News(**item) for item in cached_news_list]
+
     stmt = (
         select(News)
         .where(News.category_id == category_id)
@@ -34,7 +44,19 @@ async def get_news_list(db: AsyncSession, category_id: int, skip: int = 0, limit
         .limit(limit)
     )
     result = await db.execute(stmt)
-    return result.scalars().all()
+    news_list = result.scalars().all()
+
+    # 写入缓存
+    if news_list:
+        # 先把ORM数据转换成字典才能写入缓存
+        # 这里也可以用jsonable.encoder()
+        # 此处使用另一种方法： ORM转pydantic再转字典
+        # by_alias=False 不使用别名，保持Python风格，因为Redis数据是给后端用的
+        news_data = [NewsItemBase.model_validate(item).model_dump(mode="json", by_alias=False) for item in news_list]
+        await set_cached_news_list(category_id, page, limit, news_data)
+
+    # 响应数据
+    return news_list
 
 async def get_news_count(db: AsyncSession, category_id: int) -> int:
     # 查询的是指定分类下的数量
