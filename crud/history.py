@@ -62,9 +62,9 @@ async def get_history_list(
 async def delete_news_history(
         db: AsyncSession,
         user_id: int,
-        history_id: int
+        news_id: int
 ):
-    stmt = delete(History).where(History.user_id == user_id, History.id == history_id)
+    stmt = delete(History).where(History.user_id == user_id, History.id == news_id)
     result = await db.execute(stmt)
     await db.commit()
 
