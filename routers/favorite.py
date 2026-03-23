@@ -69,4 +69,5 @@ async def clear_favorite(
         user: User = Depends(get_current_user),
         db: AsyncSession = Depends(get_db)
 ):
-    return success_response(message="清空收藏记录成功")
+    count = favorite.remove_all_favorite(db, user.id)
+    return success_response(message=f"清空{count}条收藏记录成功")
